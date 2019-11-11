@@ -39,10 +39,10 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
 
                 //add empty slots depending on starting day of the week
                 if monthDates.isEmpty {
-                    let components = calendar.dateComponents([.day, .weekday], from: date)
+                    let weekday = calendar.component(.weekday, from: date)
 
                     for n in (1...7) {
-                        if components.weekday == n {
+                        if weekday == n {
                             break
                         }
                         monthDates.append(nil)
@@ -69,11 +69,25 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
 
     private var itemSize: CGSize = .zero
 
+    private var currentMonth: Int = {
+        let calendar = Calendar(identifier: .gregorian)
+        let initialDate = Date(timeIntervalSinceReferenceDate: 3600 * 24)
+        let components = calendar.dateComponents([.month], from: initialDate, to: Date())
+        return components.month!
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         let width = self.collectionView.visibleSize.width/7
         self.itemSize = CGSize(width: width, height: 50)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        let ip = IndexPath(item: 0, section: self.currentMonth)
+        self.collectionView.scrollToItem(at: ip, at: .centeredVertically, animated: true)
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
