@@ -11,9 +11,15 @@ import UIKit
 class ViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     @IBOutlet weak var collectionView: UICollectionView!
 
-    private let calendar = Calendar(identifier: .gregorian)
+    private let calendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale.autoupdatingCurrent
+        return calendar
+    }()
 
-    private var daysOffset = 0
+    private var monthNames: [String] {
+        return self.calendar.monthSymbols
+    }
 
     private let dates: [[Date?]] = {
         let calendar = Calendar(identifier: .gregorian)
@@ -89,18 +95,21 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "headerId", for: indexPath)
 
-//        if let label = header.viewWithTag(111) as? UILabel {
-//            label.text = self.months[indexPath.section]
-//        }
+        if let label = header.viewWithTag(111) as? UILabel {
+            label.text = self.monthNames[indexPath.section % self.monthNames.count]
+        }
 
         return header
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "dayId", for: indexPath)
+        cell.contentView.backgroundColor = .none
+
         guard let date = self.dates[indexPath.section][indexPath.item] else {
             if let label = cell.contentView.viewWithTag(111) as? UILabel {
-                label.text = "⭕️"
+                label.text = ""
+                cell.contentView.backgroundColor = .quaternarySystemFill
             }
             return cell
         }
